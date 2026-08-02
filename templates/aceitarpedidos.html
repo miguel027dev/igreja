@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin | ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .admin-page { padding: 20px 4% 100px; max-width: 1100px; margin: 0 auto; }
+    .admin-header { margin-bottom: 25px; }
+    .admin-header h1 { font-size: 1.4rem; font-weight: 800; }
+    .admin-header p { color: var(--text-sec); font-size: 0.85rem; }
+
+    .tabs { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 25px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+        padding: 10px 20px; border-radius: 10px; background: transparent;
+        border: 1px solid transparent; color: var(--text-sec); font-weight: 700;
+        font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: 0.3s;
+    }
+    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.03); }
+    .tab-btn.active { color: var(--primary); border-color: var(--primary); background: rgba(212, 225, 23, 0.05); }
+
+    .tab-panel { display: none; animation: fadeInUp 0.4s ease; }
+    .tab-panel.active { display: block; }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+        text-align: left; padding: 14px; font-size: 0.6rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec);
+        border-bottom: 1px solid var(--glass-border);
+    }
+    .data-table td { padding: 14px; font-size: 0.85rem; border-bottom: 1px solid var(--glass-border); }
+    .data-table tr:hover td { background: rgba(255,255,255,0.01); }
+    .user-name-cell { font-weight: 700; }
+    .user-email-cell { color: var(--text-sec); font-size: 0.8rem; }
+
+    .btn-approve {
+        padding: 8px 16px; background: var(--primary); color: var(--bg-deep);
+        border: none; border-radius: 8px; font-weight: 800; font-size: 0.7rem;
+        text-transform: uppercase; cursor: pointer; transition: 0.3s;
+    }
+    .btn-approve:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(212, 225, 23, 0.2); }
+    .btn-reject {
+        padding: 8px 12px; background: transparent; color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;
+        font-weight: 700; font-size: 0.7rem; cursor: pointer; transition: 0.3s; margin-left: 6px;
+    }
+    .btn-reject:hover { background: rgba(239, 68, 68, 0.1); }
+
+    .user-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 640px) { .user-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .user-card {
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md); padding: 16px;
+        display: flex; align-items: center; gap: 12px;
+    }
+    .user-avatar-sm {
+        width: 42px; height: 42px; border-radius: 12px;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.9rem; color: var(--bg-deep); flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-info p { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-info small { color: var(--text-sec); font-size: 0.7rem; }
+    .role-badge {
+        font-size: 0.55rem; font-weight: 800; text-transform: uppercase;
+        padding: 3px 8px; border-radius: 6px;
+    }
+    .role-badge.admin { background: rgba(212, 225, 23, 0.15); color: var(--primary); }
+    .role-badge.professor { background: rgba(0, 156, 224, 0.15); color: var(--secondary); }
+    .role-badge.aluno { background: rgba(255,255,255,0.05); color: var(--text-sec); }
+
+    .empty-admin { text-align: center; padding: 60px 20px; }
+    .empty-admin i { font-size: 2.5rem; color: var(--secondary); opacity: 0.2; margin-bottom: 15px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="admin-page">
+    <div class="admin-header animate-in">
+        <h1><i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> Comando Central</h1>
+        <p>Gerencie usuários, aprovações e conteúdo do portal.</p>
+    </div>
+
+    <div class="tabs animate-in delay-1">
+        <button class="tab-btn active" onclick="showTab('pedidos')" id="tabbtn-pedidos">
+            <i class="fa-solid fa-user-clock"></i> Pendentes
+        </button>
+        <button class="tab-btn" onclick="showTab('usuarios')" id="tabbtn-usuarios">
+            <i class="fa-solid fa-users"></i> Usuários
+        </button>
+        <button class="tab-btn" onclick="showTab('aulas')" id="tabbtn-aulas">
+            <i class="fa-solid fa-book-bible"></i> Aulas
+        </button>
+        <button class="tab-btn" onclick="showTab('feedbacks')" id="tabbtn-feedbacks">
+            <i class="fa-solid fa-comments"></i> Feedbacks
+        </button>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="tab-panel active" id="tab-pedidos">
+        <div class="card">
+            {% if pedidos %}
+            <table class="data-table">
+                <thead>
+                    <tr><th>Solicitante</th><th>E-mail</th><th>Data</th><th style="text-align:right">Ação</th></tr>
+                </thead>
+                <tbody>
+                    {% for user in pedidos %}
+                    <tr id="row-{{ user.id }}">
+                        <td class="user-name-cell">{{ user.name }}</td>
+                        <td class="user-email-cell">{{ user.email }}</td>
+                        <td style="font-size:0.75rem;color:var(--text-sec)">{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td style="text-align:right">
+                            <button class="btn-approve" onclick="aprovar({{ user.id }}, '{{ user.name }}')">
+                                <i class="fa-solid fa-check"></i> Aprovar
+                            </button>
+                            <button class="btn-reject" onclick="rejeitar({{ user.id }})">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-admin">
+                <i class="fa-solid fa-user-check"></i>
+                <h3>Nenhum pedido pendente</h3>
+                <p style="color:var(--text-sec);font-size:0.85rem">Todos os usuários foram aprovados.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div class="tab-panel" id="tab-usuarios">
+        <div class="user-grid">
+            {% for u in users %}
+            <div class="user-card">
+                <div class="user-avatar-sm">{{ u.name[0] | upper }}</div>
+                <div class="user-info">
+                    <p>{{ u.name }}</p>
+                    <small>{{ u.email }}</small>
+                </div>
+                <span class="role-badge {{ u.role }}">{{ u.role }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- AULAS -->
+    <div class="tab-panel" id="tab-aulas">
+        <div class="card">
+            {% if aulas %}
+            <table class="data-table">
+                <thead>
+                    <tr><th>Aula</th><th>Categoria</th><th>Data</th></tr>
+                </thead>
+                <tbody>
+                    {% for a in aulas %}
+                    <tr>
+                        <td class="user-name-cell">{{ a.titulo }}</td>
+                        <td><span class="role-badge professor">{{ a.categoria }}</span></td>
+                        <td style="font-size:0.75rem;color:var(--text-sec)">{{ a.data_criacao.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-admin">
+                <i class="fa-solid fa-book-open"></i>
+                <h3>Nenhuma aula cadastrada</h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- FEEDBACKS -->
+    <div class="tab-panel" id="tab-feedbacks">
+        <div class="card">
+            <p style="text-align:center;padding:40px;color:var(--text-sec)">
+                <a href="{{ url_for('lista_feedbacks') }}" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-right"></i> Ver Feedbacks Completos
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    document.getElementById('tabbtn-' + id).classList.add('active');
+}
+
+async function aprovar(userId, userName) {
+    const { value: role } = await Swal.fire({
+        title: 'Aprovar ' + userName,
+        text: 'Defina o cargo deste usuário:',
+        input: 'select',
+        inputOptions: { aluno: 'Aluno', professor: 'Professor' },
+        inputPlaceholder: 'Selecione...',
+        showCancelButton: true,
+        confirmButtonText: 'Aprovar',
+        confirmButtonColor: '#d4e117',
+        background: '#0a111a', color: '#fff'
+    });
+    if (!role) return;
+
+    Swal.fire({ title: 'Processando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#0a111a', color: '#fff' });
+    try {
+        const res = await fetch(`/api/admin/aprovar/${userId}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cargo: role })
+        });
+        const data = await res.json();
+        if (data.success) {
+            Swal.fire({ icon: 'success', title: 'Aprovado!', timer: 1500, showConfirmButton: false, background: '#0a111a', color: '#fff' });
+            document.getElementById('row-' + userId)?.remove();
+        } else throw new Error(data.message);
+    } catch (e) {
+        Swal.fire('Erro', e.message, 'error');
+    }
+}
+
+async function rejeitar(userId) {
+    const confirm = await Swal.fire({
+        title: 'Rejeitar?', text: 'O usuário será removido permanentemente.',
+        icon: 'warning', showCancelButton: true,
+        confirmButtonText: 'Sim, remover', confirmButtonColor: '#ef4444',
+        background: '#0a111a', color: '#fff'
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+        const res = await fetch(`/api/admin/rejeitar/${userId}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('row-' + userId)?.remove();
+            Swal.fire({ icon: 'success', title: 'Removido', timer: 1000, showConfirmButton: false, background: '#0a111a', color: '#fff' });
+        }
+    } catch (e) {
+        Swal.fire('Erro', e.message, 'error');
+    }
+}
+</script>
+{% endblock %}

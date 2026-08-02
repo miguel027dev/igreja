@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Meu Perfil | ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .profile-page { max-width: 480px; margin: 0 auto; padding: 20px 4% 100px; }
+    .profile-card {
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg); padding: 30px 25px;
+        text-align: center; position: relative;
+    }
+    .avatar-section {
+        position: relative; width: 130px; height: 130px;
+        margin: -20px auto 15px;
+    }
+    .avatar-ring-lg {
+        width: 100%; height: 100%; border-radius: 50%;
+        background: conic-gradient(var(--secondary) {{ user.xp_no_nivel / 10 }}%, var(--glass-border) 0);
+        padding: 4px;
+    }
+    .avatar-inner-lg {
+        width: 100%; height: 100%; border-radius: 50%;
+        background: var(--bg-deep); border: 3px solid var(--bg-deep);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.5rem; color: var(--secondary);
+    }
+    .level-badge {
+        position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+        background: var(--primary); color: var(--bg-deep);
+        padding: 3px 14px; border-radius: 10px;
+        font-weight: 900; font-size: 0.8rem;
+        box-shadow: 0 5px 15px rgba(212, 225, 23, 0.3);
+    }
+    .profile-name { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+    .profile-email { color: var(--text-sec); font-size: 0.85rem; margin-bottom: 20px; }
+
+    .xp-box { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 18px; margin-bottom: 20px; }
+    .xp-header { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+    .xp-bar-bg { height: 8px; background: rgba(0,0,0,0.3); border-radius: 20px; overflow: hidden; }
+    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); border-radius: 20px; transition: width 1s ease; }
+    .xp-info { font-size: 0.65rem; color: var(--text-sec); margin-top: 8px; text-align: center; font-weight: 600; }
+
+    .info-list { margin-bottom: 25px; }
+    .info-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px; background: rgba(255,255,255,0.02);
+        border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
+        margin-bottom: 8px;
+    }
+    .info-item i { color: var(--secondary); font-size: 0.9rem; width: 20px; text-align: center; }
+    .info-item div { text-align: left; }
+    .info-item .label { font-size: 0.6rem; color: var(--text-sec); text-transform: uppercase; font-weight: 700; display: block; }
+    .info-item .value { font-size: 0.85rem; font-weight: 600; }
+
+    .btn-block { width: 100%; margin-bottom: 10px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-page">
+    <div class="profile-card animate-in">
+        <div class="avatar-section">
+            <div class="avatar-ring-lg">
+                <div class="avatar-inner-lg">
+                    {% if user.role == 'admin' %}
+                        <i class="fa-solid fa-shield-halved"></i>
+                    {% else %}
+                        <i class="fa-solid fa-user-graduate"></i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="level-badge">NÍVEL {{ user.nivel }}</div>
+        </div>
+
+        <div class="profile-name">{{ user.name }}</div>
+        <div class="profile-email">{{ user.email }}</div>
+
+        <div class="xp-box">
+            <div class="xp-header">
+                <span>Experiência</span>
+                <span>{{ user.xp_no_nivel }} / 1000 XP</span>
+            </div>
+            <div class="xp-bar-bg">
+                <div class="xp-bar-fill" style="width: {{ user.xp_no_nivel / 10 }}%"></div>
+            </div>
+            <div class="xp-info">Faltam {{ 1000 - user.xp_no_nivel }} XP para o nível {{ user.nivel + 1 }}</div>
+        </div>
+
+        <div class="info-list">
+            <div class="info-item">
+                <i class="fa-solid fa-id-badge"></i>
+                <div>
+                    <span class="label">ID Operacional</span>
+                    <span class="value">#{{ user.id }}</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fa-solid fa-user-tag"></i>
+                <div>
+                    <span class="label">Cargo</span>
+                    <span class="value">{{ user.role | upper }}</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fa-solid fa-calendar"></i>
+                <div>
+                    <span class="label">Membro desde</span>
+                    <span class="value">{{ user.created_at.strftime('%d/%m/%Y') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="editarPerfil()" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-pen-to-square"></i> Editar Perfil
+        </button>
+        {% if user.role == 'admin' %}
+        <a href="{{ url_for('lista_aprovacoes') }}" class="btn btn-secondary btn-block">
+            <i class="fa-solid fa-shield-halved"></i> Painel Admin
+        </a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-block">
+            <i class="fa-solid fa-power-off"></i> Sair da Conta
+        </a>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function editarPerfil() {
+    const { value: formValues } = await Swal.fire({
+        title: 'Editar Perfil',
+        background: '#0a111a', color: '#fff',
+        confirmButtonColor: '#009ce0',
+        html:
+            `<input id="swal-name" class="swal2-input" style="width:85%;margin-bottom:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;" placeholder="Nome" value="{{ user.name }}">` +
+            `<input id="swal-email" class="swal2-input" style="width:85%;margin-bottom:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;" placeholder="E-mail" value="{{ user.email }}">` +
+            `<input id="swal-pass" type="password" class="swal2-input" style="width:85%;margin-bottom:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;" placeholder="Nova Senha (opcional)">` +
+            `<input id="swal-curr-pass" type="password" class="swal2-input" style="width:85%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:10px;" placeholder="Senha Atual (obrigatória)">`,
+        confirmButtonText: 'Salvar',
+        preConfirm: () => ({
+            name: document.getElementById('swal-name').value,
+            email: document.getElementById('swal-email').value,
+            new_password: document.getElementById('swal-pass').value,
+            current_password: document.getElementById('swal-curr-pass').value
+        })
+    });
+
+    if (formValues) {
+        if (!formValues.current_password) {
+            Swal.fire('Atenção', 'Informe sua senha atual.', 'warning');
+            return;
+        }
+        try {
+            const res = await fetch('/api/perfil/atualizar', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formValues)
+            });
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+            } else {
+                Swal.fire('Erro', data.message, 'error');
+            }
+        } catch (e) {
+            Swal.fire('Erro', 'Falha na conexão.', 'error');
+        }
+    }
+}
+</script>
+{% endblock %}

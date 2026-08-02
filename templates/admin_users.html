@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Usuários | Admin ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .admin-page { padding: 20px 4% 100px; max-width: 1100px; margin: 0 auto; }
+    .user-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 640px) { .user-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .user-grid { grid-template-columns: repeat(3, 1fr); } }
+    .user-card {
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md); padding: 18px;
+        display: flex; align-items: center; gap: 14px;
+    }
+    .user-avatar {
+        width: 48px; height: 48px; border-radius: 14px;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 1rem; color: var(--bg-deep); flex-shrink: 0;
+    }
+    .user-details { flex: 1; min-width: 0; }
+    .user-details p { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-details small { color: var(--text-sec); font-size: 0.7rem; display: block; }
+    .role-tag {
+        font-size: 0.55rem; font-weight: 800; text-transform: uppercase;
+        padding: 3px 8px; border-radius: 6px;
+    }
+    .role-tag.admin { background: rgba(212, 225, 23, 0.15); color: var(--primary); }
+    .role-tag.professor { background: rgba(0, 156, 224, 0.15); color: var(--secondary); }
+    .role-tag.aluno { background: rgba(255,255,255,0.05); color: var(--text-sec); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="admin-page">
+    <div class="admin-header animate-in">
+        <h1><i class="fa-solid fa-users" style="color: var(--secondary);"></i> Todos os Usuários</h1>
+        <p style="color:var(--text-sec);font-size:0.85rem">{{ users|length }} usuários cadastrados no sistema.</p>
+    </div>
+    <div class="user-grid">
+        {% for u in users %}
+        <div class="user-card animate-in">
+            <div class="user-avatar">{{ u.name[0] | upper }}</div>
+            <div class="user-details">
+                <p>{{ u.name }}</p>
+                <small>{{ u.email }} • {{ u.created_at.strftime('%d/%m/%Y') }}</small>
+            </div>
+            <span class="role-tag {{ u.role }}">{{ u.role }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

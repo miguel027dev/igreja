@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Login | ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .auth-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(25px);
+        border: 1px solid var(--glass-border);
+        padding: 45px 30px;
+        border-radius: var(--radius-lg);
+        width: 100%;
+        max-width: 400px;
+        animation: fadeInUp 0.6s ease;
+    }
+    .auth-header { text-align: center; margin-bottom: 35px; }
+    .auth-icon {
+        width: 65px; height: 65px;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 18px;
+        font-size: 1.6rem; color: var(--bg-deep);
+    }
+    .auth-header h2 { font-size: 1.5rem; font-weight: 800; }
+    .auth-header p { color: var(--text-sec); font-size: 0.85rem; margin-top: 5px; }
+    .input-wrap { position: relative; margin-bottom: 18px; }
+    .input-wrap i {
+        position: absolute; left: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--secondary); font-size: 0.9rem;
+    }
+    .input-wrap .input-field { padding-left: 42px; }
+    .btn-full { width: 100%; margin-top: 8px; }
+    .auth-footer { text-align: center; margin-top: 25px; font-size: 0.85rem; color: var(--text-sec); }
+    .auth-footer a { color: var(--secondary); font-weight: 700; text-decoration: none; }
+    .auth-footer a:hover { color: var(--primary); }
+    .status-badge {
+        position: absolute; top: 20px; right: 25px;
+        background: rgba(212, 225, 23, 0.1);
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 0.6rem; text-transform: uppercase;
+        letter-spacing: 1px; font-weight: 800;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card" style="position: relative;">
+        <span class="status-badge">Acesso</span>
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="ITEL ELIM" style="width:65px;height:65px;object-fit:contain;margin:0 auto 18px;display:block;">
+            <h2>Bem-vindo de volta</h2>
+            <p>Entre com suas credenciais institucionais</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-wrap">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="email" class="input-field" placeholder="seu@email.com" required>
+            </div>
+            <div class="input-wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" class="input-field" placeholder="Sua senha" required>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-full" id="btnSubmit">
+                <span>Entrar</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Ainda não tem conta? <a href="{{ url_for('register') }}">Cadastre-se</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Validando...';
+
+    try {
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            Swal.fire({
+                icon: 'success', title: 'Bem-vindo!',
+                text: 'Redirecionando...', timer: 1200,
+                showConfirmButton: false,
+                background: '#0a111a', color: '#fff'
+            }).then(() => window.location.href = data.redirect);
+        } else {
+            throw new Error(data.error || 'Credenciais inválidas');
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: 'error', title: 'Acesso negado',
+            text: err.message,
+            background: '#0a111a', color: '#fff',
+            confirmButtonColor: '#009ce0'
+        });
+        btn.disabled = false;
+        btn.innerHTML = original;
+    }
+});
+</script>
+{% endblock %}

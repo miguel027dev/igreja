@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Feedback | ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .feedback-page { max-width: 600px; margin: 0 auto; padding: 20px 4% 100px; }
+    .feedback-header { text-align: center; margin-bottom: 30px; }
+    .feedback-header .icon-box {
+        width: 70px; height: 70px; background: linear-gradient(135deg, var(--secondary), var(--primary));
+        border-radius: 20px; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 18px; font-size: 1.8rem; color: var(--bg-deep);
+        box-shadow: 0 10px 30px rgba(0, 156, 224, 0.2);
+    }
+    .feedback-header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+    .feedback-header p { color: var(--text-sec); font-size: 0.9rem; }
+
+    .rating-stars { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+    .star {
+        font-size: 2rem; color: var(--glass-border); cursor: pointer;
+        transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .star:hover, .star.active { color: var(--primary); transform: scale(1.2); }
+    .star.active { filter: drop-shadow(0 0 8px rgba(212, 225, 23, 0.4)); }
+
+    .tipo-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;
+    }
+    .tipo-option {
+        padding: 14px; border-radius: var(--radius-sm);
+        background: rgba(255,255,255,0.02); border: 2px solid var(--glass-border);
+        text-align: center; cursor: pointer; transition: 0.3s;
+        font-size: 0.8rem; font-weight: 600; color: var(--text-sec);
+    }
+    .tipo-option i { display: block; font-size: 1.3rem; margin-bottom: 6px; color: var(--secondary); }
+    .tipo-option:hover { border-color: var(--secondary); color: #fff; }
+    .tipo-option.selected { border-color: var(--primary); background: rgba(212, 225, 23, 0.05); color: #fff; }
+    .tipo-option.selected i { color: var(--primary); }
+
+    .success-card {
+        text-align: center; padding: 50px 30px; animation: fadeInUp 0.6s ease;
+    }
+    .success-card .icon-success {
+        width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1);
+        border: 2px solid var(--success); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px; font-size: 2rem; color: var(--success);
+    }
+    .success-card h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+    .success-card p { color: var(--text-sec); margin-bottom: 25px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="feedback-page">
+    <div class="feedback-header animate-in">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="ITEL ELIM" style="width:70px;height:70px;object-fit:contain;margin:0 auto 18px;display:block;">
+        <h1>Envie seu Feedback</h1>
+        <p>Sua opinião é essencial para melhorarmos o portal.</p>
+    </div>
+
+    <div class="card animate-in delay-1" id="formCard">
+        <form id="feedbackForm">
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" id="fbNome" class="input-field" value="{{ current_user.name if current_user.is_authenticated else '' }}" placeholder="Seu nome" required>
+            </div>
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="fbEmail" class="input-field" value="{{ current_user.email if current_user.is_authenticated else '' }}" placeholder="seu@email.com" required>
+            </div>
+
+            <label style="display:block;font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--secondary);margin-bottom:10px;letter-spacing:0.5px;">Tipo de Feedback</label>
+            <div class="tipo-grid">
+                <div class="tipo-option selected" data-value="sugestao" onclick="selectTipo(this)">
+                    <i class="fa-solid fa-lightbulb"></i> Sugestão
+                </div>
+                <div class="tipo-option" data-value="problema" onclick="selectTipo(this)">
+                    <i class="fa-solid fa-bug"></i> Problema
+                </div>
+                <div class="tipo-option" data-value="elogio" onclick="selectTipo(this)">
+                    <i class="fa-solid fa-heart"></i> Elogio
+                </div>
+                <div class="tipo-option" data-value="outro" onclick="selectTipo(this)">
+                    <i class="fa-solid fa-ellipsis"></i> Outro
+                </div>
+            </div>
+            <input type="hidden" id="fbTipo" value="sugestao">
+
+            <label style="display:block;font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--secondary);margin-bottom:10px;letter-spacing:0.5px;">Avaliação Geral</label>
+            <div class="rating-stars">
+                <i class="fa-solid fa-star star active" data-val="1" onclick="rate(1)"></i>
+                <i class="fa-solid fa-star star active" data-val="2" onclick="rate(2)"></i>
+                <i class="fa-solid fa-star star active" data-val="3" onclick="rate(3)"></i>
+                <i class="fa-solid fa-star star active" data-val="4" onclick="rate(4)"></i>
+                <i class="fa-solid fa-star star" data-val="5" onclick="rate(5)"></i>
+            </div>
+            <input type="hidden" id="fbRating" value="4">
+
+            <div class="input-group">
+                <label>Mensagem</label>
+                <textarea id="fbMensagem" class="input-field" rows="5" placeholder="Descreva sua experiência, sugestão ou problema..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="btnSubmit">
+                <i class="fa-solid fa-paper-plane"></i> Enviar Feedback
+            </button>
+        </form>
+    </div>
+
+    <div id="successCard" style="display: none;">
+        <div class="card success-card">
+            <div class="icon-success"><i class="fa-solid fa-check"></i></div>
+            <h2>Obrigado!</h2>
+            <p>Seu feedback foi enviado com sucesso. Agradecemos pela contribuição.</p>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                <i class="fa-solid fa-house"></i> Voltar ao Início
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function selectTipo(el) {
+    document.querySelectorAll('.tipo-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('fbTipo').value = el.dataset.value;
+}
+
+function rate(val) {
+    document.getElementById('fbRating').value = val;
+    document.querySelectorAll('.star').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+    });
+}
+
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...';
+
+    try {
+        const res = await fetch('/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nome: document.getElementById('fbNome').value,
+                email: document.getElementById('fbEmail').value,
+                tipo: document.getElementById('fbTipo').value,
+                avaliacao: parseInt(document.getElementById('fbRating').value),
+                mensagem: document.getElementById('fbMensagem').value
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('formCard').style.display = 'none';
+            document.getElementById('successCard').style.display = 'block';
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Erro', text: err.message, background: '#0a111a', color: '#fff' });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar Feedback';
+    }
+});
+</script>
+{% endblock %}

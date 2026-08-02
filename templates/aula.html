@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}{{ aula.titulo }} | ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .top-nav { margin-bottom: 20px; }
+    .back-link {
+        color: var(--text-sec); text-decoration: none; font-size: 0.85rem;
+        font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+        padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
+        transition: 0.3s; border: 1px solid transparent;
+    }
+    .back-link:hover { color: var(--secondary); border-color: var(--glass-border); }
+    .badge-cat {
+        display: inline-block; background: rgba(0, 156, 224, 0.1);
+        color: var(--secondary); padding: 5px 12px; border-radius: 8px;
+        font-weight: 800; font-size: 0.65rem; text-transform: uppercase;
+        letter-spacing: 1px; border: 1px solid rgba(0, 156, 224, 0.2);
+    }
+    .aula-header { margin-bottom: 25px; }
+    .aula-header h1 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800; margin: 12px 0 8px; line-height: 1.2; }
+    .aula-meta-line { display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-sec); }
+    .aula-meta-line span { display: flex; align-items: center; gap: 5px; }
+    .aula-meta-line .xp { color: var(--primary); font-weight: 700; }
+
+    .video-wrapper {
+        position: relative; border-radius: var(--radius-lg);
+        overflow: hidden; border: 1px solid var(--glass-border);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4); background: #000;
+    }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-top: 30px;
+        padding-bottom: 40px;
+    }
+    @media (min-width: 900px) {
+        .content-grid { grid-template-columns: 1fr 320px; }
+    }
+
+    .info-card { background: var(--bg-card); padding: 25px; border-radius: var(--radius-lg); border: 1px solid var(--glass-border); }
+    .info-card h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .info-card h2 i { color: var(--secondary); }
+    .descricao-texto { color: var(--text-sec); font-size: 0.9rem; line-height: 1.7; white-space: pre-wrap; }
+
+    .action-card {
+        background: var(--bg-card); padding: 25px;
+        border-radius: var(--radius-lg); border: 1px solid var(--glass-border);
+        text-align: center;
+    }
+    @media (min-width: 900px) { .action-card { position: sticky; top: 90px; } }
+
+    .btn-quiz {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: 16px; background: var(--primary);
+        color: var(--bg-deep); text-decoration: none; border-radius: var(--radius-md);
+        font-weight: 800; text-transform: uppercase; font-size: 0.8rem;
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-quiz:hover { transform: scale(1.02); filter: brightness(1.1); box-shadow: 0 10px 25px rgba(212, 225, 23, 0.2); }
+
+    .quiz-hint { color: var(--text-sec); font-size: 0.75rem; margin-top: 12px; line-height: 1.5; }
+    .completed-badge { display: inline-flex; align-items: center; gap: 6px; color: var(--success); font-size: 0.8rem; font-weight: 700; margin-bottom: 10px; }
+    .nota-badge { font-size: 2rem; font-weight: 900; color: var(--primary); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <nav class="top-nav">
+        <a href="{{ url_for('lista_aulas') }}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Biblioteca
+        </a>
+        <span class="badge-cat">{{ aula.categoria | default('Geral') }}</span>
+    </nav>
+
+    <div class="aula-header">
+        <h1>{{ aula.titulo }}</h1>
+        <div class="aula-meta-line">
+            <span><i class="fa-regular fa-clock"></i> {{ aula.minutos_estimados }} min</span>
+            <span class="xp"><i class="fa-solid fa-bolt"></i> +{{ aula.xp_recompensa }} XP</span>
+            {% if progresso and progresso.concluido %}
+            <span style="color: var(--success);"><i class="fa-solid fa-check-circle"></i> Concluída</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="video-wrapper animate-in">
+        <div class="video-container">
+            {% if aula.url_video %}
+            <iframe src="https://www.youtube.com/embed/{{ aula.url_video }}?rel=0&modestbranding=1" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen loading="lazy">
+            </iframe>
+            {% else %}
+            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-sec);">
+                <i class="fa-solid fa-video-slash" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 10px;"></i>
+                <p>Vídeo não disponível</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <article class="info-card animate-in delay-1">
+            <h2><i class="fa-solid fa-book-open"></i> Material de Apoio</h2>
+            <div class="descricao-texto">
+                {% if aula.descricao %}
+                    {{ aula.descricao | safe }}
+                {% else %}
+                    <p>Nenhuma descrição detalhada foi fornecida. Assista ao vídeo para absorver o conteúdo completo.</p>
+                {% endif %}
+            </div>
+        </article>
+
+        <aside class="actions">
+            {% if aula.quiz_data %}
+            <div class="action-card animate-in delay-2">
+                {% if progresso and progresso.concluido %}
+                <div class="completed-badge"><i class="fa-solid fa-trophy"></i> Desafio Concluído</div>
+                {% if progresso.nota_quiz %}
+                <div class="nota-badge">{{ "%.0f"|format(progresso.nota_quiz * 100) }}%</div>
+                <p style="font-size: 0.75rem; color: var(--text-sec); margin: 8px 0 15px;">Sua melhor nota</p>
+                {% endif %}
+                <a href="{{ url_for('ver_desafio', slug=aula.slug) }}" class="btn-quiz" style="background: var(--secondary); color: #fff;">
+                    <i class="fa-solid fa-rotate-right"></i> Refazer Quiz
+                </a>
+                {% else %}
+                <h3 style="font-size: 0.85rem; margin-bottom: 12px; color: #fff;"><i class="fa-solid fa-brain" style="color: var(--primary);"></i> DESAFIO</h3>
+                <a href="{{ url_for('ver_desafio', slug=aula.slug) }}" class="btn-quiz">
+                    <i class="fa-solid fa-bolt"></i> Iniciar Quiz
+                </a>
+                <p class="quiz-hint">Acerte as questões para validar seu progresso e ganhar XP.</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="action-card animate-in delay-2" style="border-style: dashed; background: transparent;">
+                <i class="fa-solid fa-check-double" style="font-size: 1.8rem; color: var(--secondary); margin-bottom: 10px;"></i>
+                <p style="font-size: 0.8rem; color: var(--text-sec); font-weight: 600;">
+                    Módulo de leitura/visualização. Sem quiz obrigatório.
+                </p>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

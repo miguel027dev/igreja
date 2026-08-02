@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Feedbacks | Admin ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .admin-page { padding: 20px 4% 100px; max-width: 900px; margin: 0 auto; }
+    .feedback-card {
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md); padding: 20px; margin-bottom: 14px;
+        transition: 0.3s;
+    }
+    .feedback-card:hover { border-color: rgba(255,255,255,0.15); }
+    .feedback-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .feedback-author { font-weight: 700; font-size: 0.9rem; }
+    .feedback-email { color: var(--text-sec); font-size: 0.75rem; }
+    .feedback-type {
+        font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+        padding: 4px 10px; border-radius: 6px;
+    }
+    .type-sugestao { background: rgba(0, 156, 224, 0.1); color: var(--secondary); }
+    .type-problema { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+    .type-elogio { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+    .type-outro { background: rgba(255,255,255,0.05); color: var(--text-sec); }
+    .feedback-stars { color: var(--primary); font-size: 0.8rem; margin-bottom: 8px; }
+    .feedback-msg { color: var(--text-sec); font-size: 0.85rem; line-height: 1.6; }
+    .feedback-date { font-size: 0.65rem; color: #64748b; margin-top: 10px; }
+    .empty-admin { text-align: center; padding: 60px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="admin-page">
+    <div class="admin-header animate-in">
+        <h1><i class="fa-solid fa-comments" style="color: var(--secondary);"></i> Central de Feedbacks</h1>
+        <p style="color:var(--text-sec);font-size:0.85rem">Mensagens enviadas pelos usuários do portal.</p>
+    </div>
+
+    {% for fb in feedbacks %}
+    <div class="feedback-card animate-in">
+        <div class="feedback-header">
+            <div>
+                <div class="feedback-author">{{ fb.nome }}</div>
+                <div class="feedback-email">{{ fb.email }}</div>
+            </div>
+            <span class="feedback-type type-{{ fb.tipo }}">{{ fb.tipo }}</span>
+        </div>
+        <div class="feedback-stars">
+            {% for i in range(5) %}
+                <i class="fa-{{ 'solid' if i < fb.avaliacao else 'regular' }} fa-star"></i>
+            {% endfor %}
+        </div>
+        <div class="feedback-msg">{{ fb.mensagem }}</div>
+        <div class="feedback-date">{{ fb.data_envio.strftime('%d/%m/%Y %H:%M') }}</div>
+    </div>
+    {% else %}
+    <div class="empty-admin">
+        <i class="fa-solid fa-inbox" style="font-size:2.5rem;color:var(--secondary);opacity:0.2;margin-bottom:15px;"></i>
+        <h3>Nenhum feedback recebido</h3>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

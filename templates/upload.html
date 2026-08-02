@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block title %}Nova Aula | ITEL ELIM{% endblock %}
+{% block extra_css %}
+<style>
+    .upload-page { max-width: 800px; margin: 0 auto; padding: 20px 4% 100px; }
+    .upload-header { margin-bottom: 25px; }
+    .upload-header h1 { font-size: 1.5rem; font-weight: 800; }
+    .upload-header p { color: var(--text-sec); font-size: 0.85rem; }
+
+    .stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 30px; }
+    .stepper::before {
+        content: ''; position: absolute; top: 50%; left: 0; right: 0;
+        height: 2px; background: var(--glass-border); z-index: 1;
+    }
+    .step-progress {
+        position: absolute; top: 50%; left: 0; height: 2px;
+        background: linear-gradient(90deg, var(--secondary), var(--primary));
+        z-index: 2; transition: width 0.5s ease;
+    }
+    .step-node {
+        width: 36px; height: 36px; border-radius: 10px;
+        background: var(--bg-deep); border: 2px solid var(--glass-border);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.8rem; z-index: 3;
+        position: relative; transition: 0.3s; color: var(--text-sec);
+    }
+    .step-node.active { border-color: var(--secondary); color: var(--secondary); background: rgba(0, 156, 224, 0.1); }
+    .step-node.done { border-color: var(--primary); background: var(--primary); color: var(--bg-deep); }
+
+    .step-content { display: none; animation: fadeInUp 0.4s ease; }
+    .step-content.active { display: block; }
+
+    .video-preview-box {
+        margin-top: 12px; border-radius: var(--radius-sm);
+        overflow: hidden; background: #000; aspect-ratio: 16/9;
+        display: none; border: 1px solid var(--glass-border);
+    }
+
+    .quiz-item {
+        background: var(--bg-card); border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px;
+        position: relative; transition: 0.3s;
+    }
+    .quiz-item:hover { border-color: rgba(255,255,255,0.15); }
+    .remove-q {
+        position: absolute; top: -8px; right: -8px;
+        width: 28px; height: 28px; background: var(--danger);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        color: #fff; cursor: pointer; font-size: 0.7rem; border: 2px solid var(--bg-deep);
+        transition: 0.3s;
+    }
+    .remove-q:hover { transform: scale(1.1) rotate(90deg); }
+
+    .option-row {
+        display: flex; align-items: center; gap: 10px; margin-top: 10px;
+    }
+    .radio-opt {
+        width: 24px; height: 24px; border-radius: 50%;
+        border: 2px solid var(--glass-border); cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: 0.2s; flex-shrink: 0; color: transparent; font-size: 0.6rem;
+    }
+    .radio-opt.selected { border-color: var(--success); background: var(--success); color: var(--bg-deep); }
+
+    .btn-add-q {
+        width: 100%; padding: 14px; background: rgba(0, 156, 224, 0.05);
+        border: 1px dashed var(--secondary); border-radius: var(--radius-sm);
+        color: var(--secondary); cursor: pointer; font-weight: 700;
+        transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-add-q:hover { background: rgba(0, 156, 224, 0.1); }
+
+    .nav-actions { display: flex; justify-content: space-between; margin-top: 30px; gap: 12px; }
+    .nav-actions .btn { flex: 1; }
+    @media (min-width: 500px) { .nav-actions .btn { flex: 0 0 auto; } }
+
+    .hidden { display: none !important; }
+    .error-input { border-color: var(--danger) !important; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="upload-page">
+    <div class="upload-header animate-in">
+        <h1><i class="fa-solid fa-circle-plus" style="color: var(--primary);"></i> Nova Aula</h1>
+        <p>Cadastre conteúdo teológico para seus alunos</p>
+    </div>
+
+    <div class="stepper animate-in delay-1">
+        <div class="step-progress" id="stepProgress" style="width: 0%"></div>
+        <div class="step-node active" data-step="1">1</div>
+        <div class="step-node" data-step="2">2</div>
+        <div class="step-node" data-step="3">3</div>
+    </div>
+
+    <div class="card animate-in delay-2">
+        <form id="aulaForm">
+            <div class="step-content active" id="step1">
+                <div class="input-group">
+                    <label>Título da Aula</label>
+                    <input type="text" name="nome" class="input-field" placeholder="Ex: Fundamentos da Fé" required>
+                </div>
+                <div class="input-group">
+                    <label>URL do Vídeo (YouTube)</label>
+                    <input type="url" id="videoUrl" name="url_video" class="input-field" placeholder="https://youtube.com/watch?v=..." required>
+                    <div id="videoPreview" class="video-preview-box"></div>
+                </div>
+                <div class="input-group">
+                    <label>Resumo Teórico</label>
+                    <textarea name="descricao" class="input-field" rows="4" placeholder="O que o aluno aprenderá?" required></textarea>
+                </div>
+            </div>
+
+            <div class="step-content" id="step2">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <select name="categoria" class="input-field">
+                            <option value="Teologia">Teologia</option>
+                            <option value="Liderança">Liderança</option>
+                            <option value="História">História</option>
+                            <option value="Missões">Missões</option>
+                            <option value="Vida Cristã">Vida Cristã</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>XP de Recompensa</label>
+                        <input type="number" name="xp" class="input-field" value="100" min="10">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Tempo Estimado (min)</label>
+                    <input type="number" name="tempo" class="input-field" value="30" min="1">
+                </div>
+            </div>
+
+            <div class="step-content" id="step3">
+                <p style="font-size: 0.85rem; color: var(--text-sec); margin-bottom: 20px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--secondary);"></i> 
+                    Adicione questões para validar o aprendizado. Marque a alternativa correta.
+                </p>
+                <div id="quizContainer"></div>
+                <button type="button" class="btn-add-q" onclick="addQuestion()">
+                    <i class="fa-solid fa-plus"></i> Adicionar Questão
+                </button>
+            </div>
+
+            <div class="nav-actions">
+                <button type="button" class="btn btn-ghost hidden" id="prevBtn" onclick="changeStep(-1)">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar
+                </button>
+                <div style="flex:1"></div>
+                <button type="button" class="btn btn-secondary" id="nextBtn" onclick="changeStep(1)">
+                    Próximo <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <button type="submit" class="btn btn-primary hidden" id="submitBtn">
+                    <i class="fa-solid fa-check-double"></i> Publicar Aula
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 3;
+
+function getYoutubeId(url) {
+    const regExp = /^.*(youtu.be\\/|v\\/|u\\/\w\\/|embed\\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+document.getElementById('videoUrl').addEventListener('input', function(e) {
+    const id = getYoutubeId(e.target.value);
+    const preview = document.getElementById('videoPreview');
+    if (id) {
+        preview.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+});
+
+function changeStep(delta) {
+    if (delta > 0 && !validateStep()) return;
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    currentStep += delta;
+    document.getElementById(`step${currentStep}`).classList.add('active');
+    updateUI();
+}
+
+function updateUI() {
+    document.querySelectorAll('.step-node').forEach(node => {
+        const s = parseInt(node.dataset.step);
+        node.classList.toggle('active', s === currentStep);
+        node.classList.toggle('done', s < currentStep);
+    });
+    const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+    document.getElementById('stepProgress').style.width = `${progress}%`;
+    document.getElementById('prevBtn').classList.toggle('hidden', currentStep === 1);
+    document.getElementById('nextBtn').classList.toggle('hidden', currentStep === totalSteps);
+    document.getElementById('submitBtn').classList.toggle('hidden', currentStep !== totalSteps);
+}
+
+function validateStep() {
+    const container = document.getElementById(`step${currentStep}`);
+    const inputs = container.querySelectorAll('[required]');
+    let valid = true;
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('error-input');
+            valid = false;
+        } else {
+            input.classList.remove('error-input');
+        }
+    });
+    if (!valid) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha todos os campos obrigatórios.', background: '#0a111a', color: '#fff' });
+    }
+    return valid;
+}
+
+function addQuestion() {
+    const id = Date.now();
+    const html = `
+        <div class="quiz-item" id="q_${id}">
+            <div class="remove-q" onclick="removeQuestion('${id}')"><i class="fa-solid fa-times"></i></div>
+            <div class="input-group" style="margin-bottom: 12px;">
+                <label>Enunciado</label>
+                <input type="text" class="input-field question-text" placeholder="Digite a pergunta..." required>
+            </div>
+            <div class="options">
+                ${[0,1,2,3].map(i => `
+                    <div class="option-row">
+                        <div class="radio-opt ${i === 0 ? 'selected' : ''}" onclick="selectCorrect(this, ${i})">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <input type="text" class="input-field opt-text" placeholder="Opção ${i+1}" required>
+                    </div>
+                `).join('')}
+            </div>
+            <input type="hidden" class="correct-idx" value="0">
+        </div>
+    `;
+    document.getElementById('quizContainer').insertAdjacentHTML('beforeend', html);
+}
+
+function removeQuestion(id) {
+    document.getElementById(`q_${id}`).remove();
+}
+
+function selectCorrect(el, idx) {
+    const parent = el.closest('.quiz-item');
+    parent.querySelectorAll('.radio-opt').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    parent.querySelector('.correct-idx').value = idx;
+}
+
+document.getElementById('aulaForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const questions = document.querySelectorAll('.quiz-item');
+    if (questions.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'Quiz vazio', text: 'Adicione pelo menos uma questão.', background: '#0a111a', color: '#fff' });
+        return;
+    }
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Publicando...';
+
+    const formData = new FormData(this);
+    const payload = {
+        nome: formData.get('nome'),
+        url_video: formData.get('url_video'),
+        descricao: formData.get('descricao'),
+        categoria: formData.get('categoria'),
+        xp: parseInt(formData.get('xp')),
+        tempo: parseInt(formData.get('tempo')),
+        quiz: []
+    };
+    questions.forEach(item => {
+        payload.quiz.push({
+            pergunta: item.querySelector('.question-text').value,
+            opcoes: Array.from(item.querySelectorAll('.opt-text')).map(o => o.value),
+            correta: parseInt(item.querySelector('.correct-idx').value)
+        });
+    });
+
+    try {
+        const res = await fetch('/api/aulas/cadastrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            Swal.fire({ icon: 'success', title: 'Publicado!', text: data.message, timer: 2000, showConfirmButton: false, background: '#0a111a', color: '#fff' })
+            .then(() => window.location.href = data.redirect);
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Erro', text: err.message, background: '#0a111a', color: '#fff' });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Publicar Aula';
+    }
+};
+
+window.onload = () => addQuestion();
+</script>
+{% endblock %}
