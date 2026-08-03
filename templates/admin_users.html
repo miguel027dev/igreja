@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Usuários | Admin ITEL ELIM{% endblock %}
+{% block title %}Usuarios | Admin ITEL ELIM{% endblock %}
 {% block extra_css %}
 <style>
     .admin-page { padding: 20px 4% 100px; max-width: 1100px; margin: 0 auto; }
@@ -32,8 +32,8 @@
 {% block content %}
 <div class="admin-page">
     <div class="admin-header animate-in">
-        <h1><i class="fa-solid fa-users" style="color: var(--secondary);"></i> Todos os Usuários</h1>
-        <p style="color:var(--text-sec);font-size:0.85rem">{{ users|length }} usuários cadastrados no sistema.</p>
+        <h1><i class="fa-solid fa-users" style="color: var(--secondary);"></i> Todos os Usuarios</h1>
+        <p style="color:var(--text-sec);font-size:0.85rem">{{ users|length }} usuarios cadastrados no sistema.</p>
     </div>
     <div class="user-grid">
         {% for u in users %}
@@ -41,7 +41,7 @@
             <div class="user-avatar">{{ u.name[0] | upper }}</div>
             <div class="user-details">
                 <p>{{ u.name }}</p>
-                <small>{{ u.email }} • {{ u.created_at.strftime('%d/%m/%Y') }}</small>
+                <small>{{ u.email }} &bull; {{ u.created_at.strftime('%d/%m/%Y') }}</small>
             </div>
             <span class="role-tag {{ u.role }}">{{ u.role }}</span>
         </div>

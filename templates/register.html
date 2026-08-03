@@ -3,34 +3,13 @@
 {% block extra_css %}
 <style>
     .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .auth-card {
-        background: var(--bg-card);
-        backdrop-filter: blur(25px);
-        border: 1px solid var(--glass-border);
-        padding: 45px 30px;
-        border-radius: var(--radius-lg);
-        width: 100%;
-        max-width: 420px;
-        animation: fadeInUp 0.6s ease;
-    }
+    .auth-card { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); padding: 45px 30px; border-radius: var(--radius-lg); width: 100%; max-width: 420px; animation: fadeInUp 0.6s ease; }
     .auth-header { text-align: center; margin-bottom: 30px; }
-    .auth-icon {
-        width: 60px; height: 60px;
-        background: rgba(212, 225, 23, 0.1);
-        border: 2px solid var(--primary);
-        border-radius: 18px;
-        display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 15px;
-        font-size: 1.4rem; color: var(--primary);
-    }
+    .auth-icon { width: 60px; height: 60px; background: rgba(212, 225, 23, 0.1); border: 2px solid var(--primary); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.4rem; color: var(--primary); }
     .auth-header h2 { font-size: 1.4rem; font-weight: 800; }
     .auth-header p { color: var(--text-sec); font-size: 0.85rem; margin-top: 5px; }
     .input-wrap { position: relative; margin-bottom: 16px; }
-    .input-wrap i {
-        position: absolute; left: 14px; top: 50%;
-        transform: translateY(-50%);
-        color: var(--secondary); font-size: 0.9rem;
-    }
+    .input-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary); font-size: 0.9rem; }
     .input-wrap .input-field { padding-left: 42px; }
     .btn-full { width: 100%; margin-top: 8px; }
     .auth-footer { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-sec); }
@@ -47,29 +26,14 @@
             <h2>Novo Aluno</h2>
             <p>Cadastre-se para acessar o Portal ITEL ELIM</p>
         </div>
-
         <form id="registerForm">
-            <div class="input-wrap">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="name" class="input-field" placeholder="Nome completo" required>
-            </div>
-            <div class="input-wrap">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="email" class="input-field" placeholder="E-mail válido" required>
-            </div>
-            <div class="input-wrap">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" id="password" class="input-field" placeholder="Crie uma senha forte" required minlength="6">
-            </div>
-            <button type="submit" class="btn btn-primary btn-full" id="btnSubmit">
-                <span>Criar Minha Conta</span> <i class="fa-solid fa-arrow-right"></i>
-            </button>
+            <div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="name" class="input-field" placeholder="Nome completo" required></div>
+            <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input type="email" id="email" class="input-field" placeholder="E-mail valido" required></div>
+            <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="password" class="input-field" placeholder="Crie uma senha forte" required minlength="6"></div>
+            <button type="submit" class="btn btn-primary btn-full" id="btnSubmit"><span>Criar Minha Conta</span> <i class="fa-solid fa-arrow-right"></i></button>
         </form>
-
-        <div class="auth-footer">
-            Já possui conta? <a href="{{ url_for('login') }}">Fazer Login</a>
-        </div>
-        <p class="terms">Ao se cadastrar, você concorda com os termos de uso.</p>
+        <div class="auth-footer">Ja possui conta? <a href="{{ url_for('login') }}">Fazer Login</a></div>
+        <p class="terms">Ao se cadastrar, voce concorda com os termos de uso.</p>
     </div>
 </div>
 {% endblock %}
@@ -81,34 +45,19 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const original = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...';
-
     try {
         const res = await fetch('/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: document.getElementById('name').value.trim(),
-                email: document.getElementById('email').value.trim().toLowerCase(),
-                password: document.getElementById('password').value
-            })
+            body: JSON.stringify({ name: document.getElementById('name').value.trim(), email: document.getElementById('email').value.trim().toLowerCase(), password: document.getElementById('password').value })
         });
         const data = await res.json();
         if (res.ok && data.success) {
-            Swal.fire({
-                icon: 'success', title: 'Cadastro realizado!',
-                text: 'Aguarde a aprovação do administrador.',
-                background: '#0a111a', color: '#fff',
-                confirmButtonColor: '#d4e117'
-            }).then(() => window.location.href = '/login');
-        } else {
-            throw new Error(data.error || 'Erro no cadastro');
-        }
+            Swal.fire({ icon: 'success', title: 'Cadastro realizado!', text: 'Aguarde a aprovacao do administrador.', background: '#0a111a', color: '#fff', confirmButtonColor: '#d4e117' })
+            .then(() => window.location.href = '/login');
+        } else { throw new Error(data.error || 'Erro no cadastro'); }
     } catch (err) {
-        Swal.fire({
-            icon: 'error', title: 'Ops!', text: err.message,
-            background: '#0a111a', color: '#fff',
-            confirmButtonColor: '#009ce0'
-        });
+        Swal.fire({ icon: 'error', title: 'Ops!', text: err.message, background: '#0a111a', color: '#fff', confirmButtonColor: '#009ce0' });
         btn.disabled = false;
         btn.innerHTML = original;
     }

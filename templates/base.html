@@ -24,11 +24,8 @@
             --radius-md: 18px;
             --radius-lg: 28px;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
         html { scroll-behavior: smooth; }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg-deep);
@@ -38,382 +35,144 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
-
-        /* Background Effects */
         .bg-glow {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(0, 156, 224, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 100% 100%, rgba(212, 225, 23, 0.04) 0%, transparent 50%);
         }
-
-        /* Header Mobile-First */
         .main-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 4%;
-            height: 70px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 4%; height: 70px;
             background: rgba(10, 17, 26, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
         }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
+        .logo-container { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .logo-icon {
-            width: 38px;
-            height: 38px;
+            width: 38px; height: 38px;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: var(--bg-deep);
-            flex-shrink: 0;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: var(--bg-deep); flex-shrink: 0;
         }
-
-        .brand-text {
-            color: #fff;
-            font-weight: 800;
-            font-size: 1rem;
-            letter-spacing: -0.3px;
-            line-height: 1.1;
-        }
-
-        .brand-subtext {
-            color: var(--secondary);
-            font-size: 0.55rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-        }
-
-        .user-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .brand-text { color: #fff; font-weight: 800; font-size: 1rem; letter-spacing: -0.3px; line-height: 1.1; }
+        .brand-subtext { color: var(--secondary); font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; }
+        .user-actions { display: flex; align-items: center; gap: 8px; }
         .action-btn {
-            color: var(--text-sec);
-            font-size: 1.1rem;
-            text-decoration: none;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid transparent;
-            position: relative;
+            color: var(--text-sec); font-size: 1.1rem; text-decoration: none;
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid transparent; position: relative;
         }
-
-        .action-btn:hover {
-            color: var(--primary);
-            background: rgba(212, 225, 23, 0.08);
-            border-color: rgba(212, 225, 23, 0.2);
-        }
-
+        .action-btn:hover { color: var(--primary); background: rgba(212, 225, 23, 0.08); border-color: rgba(212, 225, 23, 0.2); }
         .action-btn .badge-count {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: var(--danger);
-            color: #fff;
-            font-size: 0.6rem;
-            font-weight: 800;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: -2px; right: -2px; background: var(--danger); color: #fff;
+            font-size: 0.6rem; font-weight: 800; width: 16px; height: 16px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .profile-trigger {
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-        }
-
+        .profile-trigger { background: none; border: none; padding: 0; cursor: pointer; }
         .avatar-ring {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 40px; height: 40px; border-radius: 12px;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
-            padding: 2px;
-            transition: transform 0.3s ease;
+            padding: 2px; transition: transform 0.3s ease;
         }
-
         .avatar-ring span {
-            background: var(--bg-deep);
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 800;
-            font-size: 0.85rem;
+            background: var(--bg-deep); width: 100%; height: 100%; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 0.85rem;
         }
-
-        .profile-trigger:hover .avatar-ring {
-            transform: scale(1.05);
-        }
-
-        /* Dropdown */
+        .profile-trigger:hover .avatar-ring { transform: scale(1.05); }
         .dropdown-menu {
-            position: absolute;
-            top: 60px;
-            right: 4%;
-            width: 260px;
-            background: #111e2f;
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
+            position: absolute; top: 60px; right: 4%; width: 260px; background: #111e2f;
+            border: 1px solid var(--glass-border); border-radius: var(--radius-md);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            opacity: 0;
-            transform: translateY(10px) scale(0.95);
-            pointer-events: none;
-            transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            overflow: hidden;
-            z-index: 1100;
+            opacity: 0; transform: translateY(10px) scale(0.95);
+            pointer-events: none; transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden; z-index: 1100;
         }
-
-        .dropdown-menu.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-
-        .dropdown-header {
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
+        .dropdown-menu.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .dropdown-header { padding: 18px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--glass-border); }
         .user-name { display: block; color: #fff; font-weight: 700; font-size: 0.9rem; }
         .user-role { display: block; color: var(--primary); font-size: 0.65rem; font-weight: 800; margin-top: 3px; text-transform: uppercase; }
-
         .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
-            color: var(--text-sec);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: 0.2s;
+            display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+            color: var(--text-sec); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s;
         }
-
         .dropdown-item i { font-size: 1rem; width: 20px; text-align: center; color: var(--secondary); }
-
-        .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            padding-left: 22px;
-        }
-
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; padding-left: 22px; }
         .dropdown-divider { height: 1px; background: var(--glass-border); margin: 4px 0; }
         .dropdown-item.logout { color: #f87171; }
         .dropdown-item.logout i { color: #f87171; }
         .dropdown-item.logout:hover { background: rgba(239, 68, 68, 0.1); }
-
-        /* Bottom Nav Mobile */
         .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 65px;
-            background: rgba(10, 17, 26, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--glass-border);
-            z-index: 1000;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 10px;
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
+            background: rgba(10, 17, 26, 0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border); z-index: 1000;
+            justify-content: space-around; align-items: center; padding: 0 10px;
         }
-
         .bottom-nav a {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--text-sec);
-            text-decoration: none;
-            font-size: 0.6rem;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 12px;
-            transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--text-sec); text-decoration: none; font-size: 0.6rem; font-weight: 600;
+            padding: 8px 12px; border-radius: 12px; transition: 0.3s;
         }
-
         .bottom-nav a i { font-size: 1.2rem; }
         .bottom-nav a.active, .bottom-nav a:hover { color: var(--primary); }
-
-        /* Flash Messages */
         .flash-container {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            width: 90%;
-            max-width: 400px;
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; width: 90%; max-width: 400px;
         }
-
         .flash-msg {
-            padding: 14px 20px;
-            border-radius: var(--radius-md);
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            animation: slideDown 0.4s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            padding: 14px 20px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600;
+            margin-bottom: 10px; animation: slideDown 0.4s ease; backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 10px;
         }
-
         .flash-msg.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
         .flash-msg.danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
         .flash-msg.warning { background: rgba(212, 225, 23, 0.15); border: 1px solid rgba(212, 225, 23, 0.3); color: var(--primary); }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Utility */
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         .container { padding: 20px 4%; max-width: 1200px; margin: 0 auto; }
         .section-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; }
         .text-gradient { background: linear-gradient(135deg, var(--secondary), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px 24px;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            font-size: 0.85rem;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px 24px; border-radius: var(--radius-md); font-weight: 700; font-size: 0.85rem;
+            text-decoration: none; border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap;
         }
-
-        .btn-primary {
-            background: var(--primary);
-            color: var(--bg-deep);
-        }
+        .btn-primary { background: var(--primary); color: var(--bg-deep); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 225, 23, 0.25); filter: brightness(1.1); }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: #fff;
-        }
+        .btn-secondary { background: var(--secondary); color: #fff; }
         .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 156, 224, 0.25); }
-
-        .btn-ghost {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-sec);
-            border: 1px solid var(--glass-border);
-        }
+        .btn-ghost { background: rgba(255, 255, 255, 0.05); color: var(--text-sec); border: 1px solid var(--glass-border); }
         .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
+        .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
-
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            backdrop-filter: blur(10px);
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg); padding: 24px; backdrop-filter: blur(10px);
         }
-
         .input-field {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-sm);
-            color: #fff;
-            font-size: 0.95rem;
-            font-family: inherit;
-            transition: 0.3s;
-            -webkit-appearance: none;
+            width: 100%; padding: 14px 16px; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
+            color: #fff; font-size: 0.95rem; font-family: inherit; transition: 0.3s; -webkit-appearance: none;
         }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(0, 156, 224, 0.1);
-        }
-
+        .input-field:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(0, 156, 224, 0.1); }
         .input-field::placeholder { color: #64748b; }
-
         select.input-field { cursor: pointer; }
         select.input-field option { background: var(--bg-deep); color: #fff; }
-
         textarea.input-field { resize: vertical; min-height: 100px; }
-
         .input-group { margin-bottom: 18px; }
-        .input-group label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--secondary);
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .input-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--secondary); margin-bottom: 8px; letter-spacing: 0.5px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-in { animation: fadeInUp 0.5s ease forwards; }
         .delay-1 { animation-delay: 0.1s; opacity: 0; }
         .delay-2 { animation-delay: 0.2s; opacity: 0; }
         .delay-3 { animation-delay: 0.3s; opacity: 0; }
-
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
-
-        /* Responsive */
         @media (max-width: 768px) {
             .main-header { height: 60px; padding: 0 3%; }
             .brand-text { font-size: 0.9rem; }
@@ -426,129 +185,67 @@
             .container { padding-bottom: 90px; }
             .section-title { font-size: 1.3rem; }
         }
-
-        @media (min-width: 769px) {
-            .container { padding: 30px 5%; }
-        }
+        @media (min-width: 769px) { .container { padding: 30px 5%; } }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="bg-glow"></div>
-
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <div class="flash-container">
         {% for category, message in messages %}
-        <div class="flash-msg {{ category }}">
-            <i class="fa-solid fa-circle-info"></i>
-            {{ message }}
-        </div>
+        <div class="flash-msg {{ category }}"><i class="fa-solid fa-circle-info"></i> {{ message }}</div>
         {% endfor %}
     </div>
     {% endif %}
     {% endwith %}
-
     {% if current_user.is_authenticated %}
     <header class="main-header">
         <a href="{{ url_for('dashboard') }}" class="logo-container">
-            <div class="logo-icon">
-                <i class="fa-solid fa-cross"></i>
-            </div>
-            <div>
-                <div class="brand-text">ITEL ELIM</div>
-                <div class="brand-subtext">Instituto Teológico</div>
-            </div>
+            <div class="logo-icon"><i class="fa-solid fa-cross"></i></div>
+            <div><div class="brand-text">ITEL ELIM</div><div class="brand-subtext">Instituto Teologico</div></div>
         </a>
-
         <div class="user-actions">
-            <a href="{{ url_for('feedback') }}" class="action-btn" title="Feedback">
-                <i class="fa-regular fa-comment-dots"></i>
-            </a>
-            <a href="{{ url_for('lista_aulas') }}" class="action-btn" title="Biblioteca">
-                <i class="fa-solid fa-book-bible"></i>
-            </a>
+            <a href="{{ url_for('feedback') }}" class="action-btn" title="Feedback"><i class="fa-regular fa-comment-dots"></i></a>
+            <a href="{{ url_for('lista_aulas') }}" class="action-btn" title="Biblioteca"><i class="fa-solid fa-book-bible"></i></a>
             <button class="profile-trigger" id="profileTrigger" onclick="toggleMenu(event)">
-                <div class="avatar-ring">
-                    <span>{{ current_user.name[0] | upper }}</span>
-                </div>
+                <div class="avatar-ring"><span>{{ current_user.name[0] | upper }}</span></div>
             </button>
-
             <div class="dropdown-menu" id="profileMenu">
                 <div class="dropdown-header">
                     <span class="user-name">{{ current_user.name }}</span>
                     <span class="user-role">{{ current_user.role | upper }}</span>
                 </div>
                 <div class="dropdown-body">
-                    <a href="{{ url_for('dashboard') }}" class="dropdown-item">
-                        <i class="fa-solid fa-grid-2"></i> Dashboard
-                    </a>
-                    <a href="{{ url_for('perfil') }}" class="dropdown-item">
-                        <i class="fa-solid fa-user-shield"></i> Meu Perfil
-                    </a>
-                    <a href="{{ url_for('lista_aulas') }}" class="dropdown-item">
-                        <i class="fa-solid fa-book-open"></i> Biblioteca
-                    </a>
-                    {% if current_user.role in ['admin', 'professor'] %}
-                    <a href="{{ url_for('upload') }}" class="dropdown-item">
-                        <i class="fa-solid fa-circle-plus"></i> Nova Aula
-                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="dropdown-item"><i class="fa-solid fa-grip"></i> Dashboard</a>
+                    <a href="{{ url_for('perfil') }}" class="dropdown-item"><i class="fa-solid fa-user-shield"></i> Meu Perfil</a>
+                    <a href="{{ url_for('lista_aulas') }}" class="dropdown-item"><i class="fa-solid fa-book-open"></i> Biblioteca</a>
+                    {% if current_user.role in ['admin', 'professor', 'docente'] %}
+                    <a href="{{ url_for('upload') }}" class="dropdown-item"><i class="fa-solid fa-circle-plus"></i> Nova Aula</a>
                     {% endif %}
                     {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('lista_aprovacoes') }}" class="dropdown-item">
-                        <i class="fa-solid fa-shield-halved"></i> Admin
-                    </a>
+                    <a href="{{ url_for('lista_aprovacoes') }}" class="dropdown-item"><i class="fa-solid fa-shield-halved"></i> Admin</a>
                     {% endif %}
                     <div class="dropdown-divider"></div>
-                    <a href="{{ url_for('logout') }}" class="dropdown-item logout">
-                        <i class="fa-solid fa-power-off"></i> Sair
-                    </a>
+                    <a href="{{ url_for('logout') }}" class="dropdown-item logout"><i class="fa-solid fa-power-off"></i> Sair</a>
                 </div>
             </div>
         </div>
     </header>
-
     <nav class="bottom-nav">
-        <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
-            <i class="fa-solid fa-house"></i>
-            <span>Início</span>
-        </a>
-        <a href="{{ url_for('lista_aulas') }}" class="{% if request.endpoint == 'lista_aulas' %}active{% endif %}">
-            <i class="fa-solid fa-book-bible"></i>
-            <span>Aulas</span>
-        </a>
-        <a href="{{ url_for('feedback') }}" class="{% if request.endpoint == 'feedback' %}active{% endif %}">
-            <i class="fa-regular fa-comment-dots"></i>
-            <span>Feedback</span>
-        </a>
-        <a href="{{ url_for('perfil') }}" class="{% if request.endpoint == 'perfil' %}active{% endif %}">
-            <i class="fa-solid fa-user"></i>
-            <span>Perfil</span>
-        </a>
+        <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
+        <a href="{{ url_for('lista_aulas') }}" class="{% if request.endpoint == 'lista_aulas' %}active{% endif %}"><i class="fa-solid fa-book-bible"></i><span>Aulas</span></a>
+        <a href="{{ url_for('feedback') }}" class="{% if request.endpoint == 'feedback' %}active{% endif %}"><i class="fa-regular fa-comment-dots"></i><span>Feedback</span></a>
+        <a href="{{ url_for('perfil') }}" class="{% if request.endpoint == 'perfil' %}active{% endif %}"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
     </nav>
     {% endif %}
-
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
+    <main>{% block content %}{% endblock %}</main>
     <script>
-        function toggleMenu(e) {
-            e.stopPropagation();
-            document.getElementById('profileMenu').classList.toggle('active');
-        }
-        document.addEventListener('click', () => {
-            const menu = document.getElementById('profileMenu');
-            if (menu) menu.classList.remove('active');
-        });
-
-        // Auto-hide flash messages
+        function toggleMenu(e) { e.stopPropagation(); document.getElementById('profileMenu').classList.toggle('active'); }
+        document.addEventListener('click', () => { const menu = document.getElementById('profileMenu'); if (menu) menu.classList.remove('active'); });
         setTimeout(() => {
-            document.querySelectorAll('.flash-msg').forEach(el => {
-                el.style.transition = 'opacity 0.5s';
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 500);
-            });
+            document.querySelectorAll('.flash-msg').forEach(el => { el.style.transition = 'opacity 0.5s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 500); });
         }, 4000);
     </script>
     {% block extra_js %}{% endblock %}
