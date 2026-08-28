@@ -4,13 +4,13 @@ A aplicacao nao usa mais SQLite em runtime. O banco agora vem obrigatoriamente d
 
 ## 1. Configuracao
 
-Copie `.env.example` para as variaveis de ambiente do seu provedor e configure pelo menos:
+Configure as variaveis diretamente no painel de Environment Variables/Secrets do seu provedor. O projeto nao inclui `.env` com credenciais. O arquivo `.env.example` contem apenas nomes de variaveis, sem segredos.
 
 - `DATABASE_URL` — URL do PostgreSQL.
 - `SECRET_KEY` — chave longa e aleatoria.
 - `ADMIN_EMAIL` e `ADMIN_PASSWORD` — opcionais para criar o primeiro administrador em um banco vazio.
 
-URLs `postgres://...` e `postgresql://...` sao normalizadas automaticamente para o driver Psycopg 3.
+O valor de `DATABASE_URL` e lido somente do ambiente do processo e nunca possui fallback ou credencial embutida no codigo. Formatos PostgreSQL comuns dos provedores sao normalizados automaticamente para o driver Psycopg 3.
 
 ## 2. Migrar os dados antigos
 

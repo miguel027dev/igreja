@@ -20,39 +20,46 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def normalize_database_url(url):
-    """Normaliza URLs de PostgreSQL de provedores como Render/Railway/Neon."""
-    if not url:
-        raise RuntimeError(
-            "DATABASE_URL nao configurada. Defina uma URL PostgreSQL, por exemplo: "
-            "postgresql://igreja_tj5z_user:5tK1RON5Q5S4o60bRF9TjAINBtd0VoQT@dpg-da8rhe67bikc73d3rs10-a/igreja_tj5z"
-        )
+    """Normaliza o valor recebido exclusivamente do ambiente do servidor."""
     if url.startswith("postgres://"):
         return "postgresql+psycopg://" + url[len("postgres://"):]
     if url.startswith("postgresql://"):
         return "postgresql+psycopg://" + url[len("postgresql://"):]
     return url
 
-DATABASE_URL = normalize_database_url(os.environ.get("DATABASE_URL"))
+# A conexao nunca possui valor padrao no codigo. O servico de hospedagem
+# deve injetar DATABASE_URL como variavel de ambiente. Se ela nao existir,
+# a aplicacao encerra antes de iniciar para evitar fallback inseguro.
+try:
+    database_uri = normalize_database_url(os.environ["DATABASE_URL"].strip())
+except KeyError as exc:
+    raise RuntimeError("DATABASE_URL deve ser configurada nas variaveis de ambiente do servico.") from exc
+
+if not database_uri:
+    raise RuntimeError("DATABASE_URL esta vazia nas variaveis de ambiente do servico.")
 
 engine_options = {
     "pool_pre_ping": True,
     "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", "300")),
 }
-if DATABASE_URL.startswith("postgresql"):
+if database_uri.startswith("postgresql"):
     engine_options.update({
         "pool_size": int(os.environ.get("DB_POOL_SIZE", "5")),
         "max_overflow": int(os.environ.get("DB_MAX_OVERFLOW", "10")),
         "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", "30")),
     })
 
-secret_key = os.environ.get("SECRET_KEY")
+try:
+    secret_key = os.environ["SECRET_KEY"].strip()
+except KeyError as exc:
+    raise RuntimeError("SECRET_KEY deve ser configurada nas variaveis de ambiente do servico.") from exc
+
 if not secret_key:
-    secret_key = "dev-only-change-me"
-    app.logger.warning("SECRET_KEY nao configurada. Defina uma chave forte em producao.")
+    raise RuntimeError("SECRET_KEY esta vazia nas variaveis de ambiente do servico.")
 
 app.config.update(
     SECRET_KEY=secret_key,
-    SQLALCHEMY_DATABASE_URI=DATABASE_URL,
+    SQLALCHEMY_DATABASE_URI=database_uri,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SQLALCHEMY_ENGINE_OPTIONS=engine_options,
     JSON_AS_ASCII=False,
@@ -456,9 +463,11 @@ def api_cadastrar_aluno():
     data = request.get_json()
     name = data.get('name', '').strip()
     email = data.get('email', '').strip().lower()
-    password = data.get('password', 'mudar123')
+    password = data.get('password', '')
     if not name or not email:
         return jsonify({"success": False, "message": "Nome e email obrigatorios"}), 400
+    if len(password) < 8:
+        return jsonify({"success": False, "message": "Informe uma senha com pelo menos 8 caracteres"}), 400
     if User.query.filter_by(email=email).first():
         return jsonify({"success": False, "message": "Email ja cadastrado"}), 409
     try:
