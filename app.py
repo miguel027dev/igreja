@@ -11,11 +11,15 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from sqlalchemy import text
+from dotenv import load_dotenv
 
 # --- CONFIGURACAO PRODUCAO ELIM V9 ---
 app = Flask(__name__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# Carrega .env somente para desenvolvimento/local. Variaveis reais do servidor
+# tem prioridade porque override=False.
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 

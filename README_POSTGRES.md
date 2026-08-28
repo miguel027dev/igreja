@@ -4,7 +4,9 @@ A aplicacao nao usa mais SQLite em runtime. O banco agora vem obrigatoriamente d
 
 ## 1. Configuracao
 
-Configure as variaveis diretamente no painel de Environment Variables/Secrets do seu provedor. O projeto nao inclui `.env` com credenciais. O arquivo `.env.example` contem apenas nomes de variaveis, sem segredos.
+Em producao, configure as variaveis diretamente no painel de Environment Variables/Secrets do seu provedor. Para desenvolvimento local, este pacote inclui um `.env` ignorado pelo Git. O `python-dotenv` carrega esse arquivo sem sobrescrever variaveis ja definidas pelo servidor (`override=False`). O `.env.example` continua sem segredos.
+
+> **Importante:** a `DATABASE_URL` fornecida usa um hostname interno do Render (`dpg-...-a`). Essa URL normalmente funciona entre servicos dentro da rede privada do Render, mas nao a partir do seu computador. Para executar localmente fora do Render, substitua `DATABASE_URL` no `.env` pela **External Database URL** do mesmo banco.
 
 - `DATABASE_URL` — URL do PostgreSQL.
 - `SECRET_KEY` — chave longa e aleatoria.
