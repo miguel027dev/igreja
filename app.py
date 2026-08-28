@@ -10,21 +10,57 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
+from sqlalchemy import text
 
 # --- CONFIGURACAO PRODUCAO ELIM V9 ---
 app = Flask(__name__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+def normalize_database_url(url):
+    """Normaliza URLs de PostgreSQL de provedores como Render/Railway/Neon."""
+    if not url:
+        raise RuntimeError(
+            "DATABASE_URL nao configurada. Defina uma URL PostgreSQL, por exemplo: "
+            "postgresql://usuario:senha@host:5432/banco"
+        )
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url[len("postgres://"):]
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://"):]
+    return url
+
+DATABASE_URL = normalize_database_url(os.environ.get("DATABASE_URL"))
+
+engine_options = {
+    "pool_pre_ping": True,
+    "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", "300")),
+}
+if DATABASE_URL.startswith("postgresql"):
+    engine_options.update({
+        "pool_size": int(os.environ.get("DB_POOL_SIZE", "5")),
+        "max_overflow": int(os.environ.get("DB_MAX_OVERFLOW", "10")),
+        "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", "30")),
+    })
+
+secret_key = os.environ.get("SECRET_KEY")
+if not secret_key:
+    secret_key = "dev-only-change-me"
+    app.logger.warning("SECRET_KEY nao configurada. Defina uma chave forte em producao.")
+
 app.config.update(
-    SECRET_KEY=os.environ.get("SECRET_KEY", "elim-core-quantum-2026-v9-ultra-secure"),
-    SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL", "sqlite:///portal_elim_v9.db"),
+    SECRET_KEY=secret_key,
+    SQLALCHEMY_DATABASE_URI=DATABASE_URL,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_ENGINE_OPTIONS=engine_options,
     JSON_AS_ASCII=False,
     MAX_CONTENT_LENGTH=100 * 1024 * 1024,
-    UPLOAD_FOLDER=UPLOAD_FOLDER
+    UPLOAD_FOLDER=UPLOAD_FOLDER,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "true").lower() == "true",
 )
 
 # Logging para producao
@@ -50,12 +86,12 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default="aluno", nullable=False)
+    role = db.Column(db.String(20), default="aluno", nullable=False, index=True)
     xp = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
-    is_approved = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, default=False, index=True)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     logs = db.relationship('LogAtividade', backref='owner', cascade="all, delete-orphan", lazy='dynamic')
@@ -93,9 +129,10 @@ class Aula(db.Model):
 
 class ProgressoAula(db.Model):
     __tablename__ = "progresso_aulas"
+    __table_args__ = (db.UniqueConstraint("user_id", "aula_id", name="uq_progresso_user_aula"),)
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    aula_id = db.Column(db.Integer, db.ForeignKey('aulas.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    aula_id = db.Column(db.Integer, db.ForeignKey('aulas.id'), index=True)
     concluido = db.Column(db.Boolean, default=False)
     nota_quiz = db.Column(db.Float, nullable=True)
     data_conclusao = db.Column(db.DateTime, default=datetime.utcnow)
@@ -103,19 +140,19 @@ class ProgressoAula(db.Model):
 class LogAtividade(db.Model):
     __tablename__ = "logs_atividades"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     acao = db.Column(db.String(255))
     ip_address = db.Column(db.String(45))
     user_agent = db.Column(db.String(255))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 class Notification(db.Model):
     __tablename__ = "notifications"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     mensagem = db.Column(db.String(255))
-    lida = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    lida = db.Column(db.Boolean, default=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 class Feedback(db.Model):
     __tablename__ = "feedbacks"
@@ -202,16 +239,33 @@ def index():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    aulas_recentes = Aula.query.filter_by(status="publicado").order_by(Aula.data_criacao.desc()).limit(6).all()
+    aulas_recentes = (
+        Aula.query.filter_by(status="publicado")
+        .order_by(Aula.data_criacao.desc())
+        .limit(6)
+        .all()
+    )
+    aulas_count = Aula.query.filter_by(status="publicado").count()
+    concluidas = current_user.progresso.filter_by(concluido=True).count()
+    progresso_pct = round((concluidas / aulas_count) * 100) if aulas_count else 0
+
     stats = {
-        "aulas_count": Aula.query.count(),
-        "meu_progresso": current_user.progresso.filter_by(concluido=True).count(),
+        "aulas_count": aulas_count,
+        "meu_progresso": concluidas,
+        "progresso_pct": progresso_pct,
         "xp": current_user.xp,
         "nivel": current_user.nivel,
         "xp_no_nivel": current_user.xp_no_nivel,
-        "atividades": LogAtividade.query.filter_by(user_id=current_user.id).order_by(LogAtividade.timestamp.desc()).limit(8).all(),
+        "atividades": (
+            LogAtividade.query.filter_by(user_id=current_user.id)
+            .order_by(LogAtividade.timestamp.desc())
+            .limit(6)
+            .all()
+        ),
         "aulas": aulas_recentes,
-        "notificacoes_nao_lidas": Notification.query.filter_by(user_id=current_user.id, lida=False).count()
+        "notificacoes_nao_lidas": Notification.query.filter_by(user_id=current_user.id, lida=False).count(),
+        "alunos_count": User.query.filter_by(role="aluno", is_approved=True).count() if current_user.role in ["admin", "professor", "docente"] else None,
+        "pendentes_count": User.query.filter_by(is_approved=False).count() if current_user.role == "admin" else None,
     }
     return render_template("home.html", **stats)
 
@@ -352,7 +406,7 @@ def api_cadastrar_aula():
 @app.route("/api/studies", methods=['GET'])
 @login_required
 def api_studies():
-    """Retorna aulas publicadas em formato compativel com painel_aluno."""
+    """Retorna aulas publicadas em formato simplificado para consumo via API."""
     aulas = Aula.query.filter_by(status="publicado").order_by(Aula.data_criacao.desc()).all()
     result = []
     for a in aulas:
@@ -370,7 +424,7 @@ def api_studies():
 @app.route("/api/studies/create", methods=['POST'])
 @role_required('admin', 'professor', 'docente')
 def api_studies_create():
-    """Cria aula via JSON (compativel com painel_professor)."""
+    """Cria aula via JSON para o fluxo de publicacao simplificada."""
     data = request.get_json()
     if not data or not data.get('title'):
         return jsonify({"success": False, "message": "Titulo obrigatorio"}), 400
@@ -417,6 +471,26 @@ def api_cadastrar_aluno():
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route("/api/professor/alunos", methods=["GET"])
+@role_required("admin", "professor", "docente")
+def api_professor_alunos():
+    alunos = (
+        User.query.filter_by(role="aluno", is_approved=True)
+        .order_by(User.name.asc())
+        .all()
+    )
+    return jsonify([
+        {
+            "id": aluno.id,
+            "name": aluno.name,
+            "email": aluno.email,
+            "xp": aluno.xp,
+            "nivel": aluno.nivel,
+            "created_at": aluno.created_at.strftime("%d/%m/%Y") if aluno.created_at else "",
+        }
+        for aluno in alunos
+    ])
 
 @app.route("/estudo/<int:id>")
 @login_required
@@ -601,25 +675,41 @@ def api_marcar_notificacoes():
     db.session.commit()
     return jsonify({"success": True})
 
+# --- SAUDE / OPERACAO ---
+
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "ok", "service": "itel-elim"})
+
+@app.route("/readyz")
+def readyz():
+    try:
+        db.session.execute(text("SELECT 1"))
+        return jsonify({"status": "ready", "database": "postgresql"})
+    except Exception:
+        db.session.rollback()
+        return jsonify({"status": "not_ready", "database": "unavailable"}), 503
+
 # --- SETUP ---
 
 def setup():
-    with app.app_context():
-        db.create_all()
-        if not User.query.filter_by(email="master@elim.edu").first():
-            admin = User(
-                name="Gestor Quantum",
-                email="master@elim.edu",
-                role="admin",
-                is_approved=True
-            )
-            admin.set_password("elim@2026")
-            db.session.add(admin)
-            db.session.commit()
-            print(">>> [SISTEMA] Admin Master configurado: master@elim.edu / elim@2026")
+    """Cria tabelas e, opcionalmente, o primeiro administrador via variaveis de ambiente."""
+    db.create_all()
 
-with app.app_context():
-    setup()
+    admin_email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+    admin_password = os.environ.get("ADMIN_PASSWORD", "")
+    admin_name = os.environ.get("ADMIN_NAME", "Administrador")
+
+    if admin_email and admin_password and not User.query.filter_by(email=admin_email).first():
+        admin = User(name=admin_name, email=admin_email, role="admin", is_approved=True)
+        admin.set_password(admin_password)
+        db.session.add(admin)
+        db.session.commit()
+        app.logger.info("Administrador inicial criado via variaveis de ambiente.")
+
+if os.environ.get("AUTO_CREATE_DB", "true").lower() == "true":
+    with app.app_context():
+        setup()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

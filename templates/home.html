@@ -1,112 +1,144 @@
 {% extends "base.html" %}
-{% block title %}Dashboard | ITEL ELIM{% endblock %}
+{% block title %}Painel | ITEL ELIM{% endblock %}
 {% block extra_css %}
 <style>
-    .hero { padding: 25px 0 20px; }
-    .hero-badge {
-        display: inline-flex; align-items: center; gap: 6px;
-        background: rgba(0, 156, 224, 0.1); border: 1px solid rgba(0, 156, 224, 0.2);
-        padding: 6px 14px; border-radius: 100px; font-size: 0.65rem; font-weight: 800;
-        color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
-    }
-    .hero h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
-    .hero p { color: var(--text-sec); font-size: 0.9rem; max-width: 500px; }
-    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
-    .stat-card {
-        background: var(--bg-card); border: 1px solid var(--glass-border);
-        border-radius: var(--radius-md); padding: 16px 12px; text-align: center; transition: 0.3s;
-    }
-    .stat-card:hover { border-color: var(--secondary); transform: translateY(-3px); }
-    .stat-card i { font-size: 1.3rem; color: var(--secondary); margin-bottom: 8px; }
-    .stat-value { font-size: 1.4rem; font-weight: 800; display: block; }
-    .stat-label { font-size: 0.6rem; color: var(--text-sec); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .section-header h2 { font-size: 1.1rem; font-weight: 800; }
-    .section-header a { font-size: 0.75rem; color: var(--secondary); text-decoration: none; font-weight: 700; }
-    .aulas-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    @media (min-width: 640px) { .aulas-grid { grid-template-columns: repeat(2, 1fr); } .stats-row { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 1024px) { .aulas-grid { grid-template-columns: repeat(3, 1fr); } }
-    .aula-card {
-        background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
-        overflow: hidden; display: flex; flex-direction: column;
-        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-decoration: none; color: inherit;
-    }
-    .aula-card:hover { transform: translateY(-6px); border-color: var(--secondary); }
-    .aula-thumb { height: 160px; background: #000; position: relative; overflow: hidden; }
-    .aula-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.4s; }
-    .aula-card:hover .aula-thumb img { opacity: 0.9; transform: scale(1.05); }
-    .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-    .play-overlay i { font-size: 2.5rem; color: #fff; opacity: 0.8; transition: 0.3s; }
-    .aula-card:hover .play-overlay i { opacity: 1; transform: scale(1.1); color: var(--secondary); }
-    .aula-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
-    .aula-tag { font-size: 0.6rem; font-weight: 800; color: var(--primary); background: rgba(212, 225, 23, 0.1); padding: 4px 10px; border-radius: 6px; width: fit-content; text-transform: uppercase; margin-bottom: 10px; }
-    .aula-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
-    .aula-desc { font-size: 0.8rem; color: var(--text-sec); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
-    .aula-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--glass-border); }
-    .aula-meta { font-size: 0.7rem; color: var(--text-sec); display: flex; align-items: center; gap: 5px; }
-    .aula-xp { font-size: 0.75rem; font-weight: 800; color: var(--primary); }
-    .empty-state { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
-    .empty-state i { font-size: 3rem; color: var(--secondary); opacity: 0.2; margin-bottom: 15px; }
-    .empty-state h3 { font-size: 1.1rem; margin-bottom: 5px; }
-    .empty-state p { font-size: 0.85rem; color: var(--text-sec); }
-    .atividades-list { margin-top: 30px; }
-    .atividade-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--glass-border); font-size: 0.8rem; color: var(--text-sec); }
-    .atividade-item i { color: var(--secondary); font-size: 0.7rem; }
-    .atividade-item small { margin-left: auto; font-size: 0.65rem; opacity: 0.6; }
+    .dashboard-head { display:flex; justify-content:space-between; gap:22px; align-items:flex-end; margin-bottom:24px; }
+    .eyebrow { color:var(--secondary); text-transform:uppercase; letter-spacing:.1em; font-size:.66rem; font-weight:800; margin-bottom:8px; }
+    .dashboard-head h1 { font-size:clamp(1.65rem,3vw,2.25rem); letter-spacing:-.045em; line-height:1.08; }
+    .dashboard-head p { color:var(--text-sec); font-size:.86rem; margin-top:9px; max-width:620px; }
+    .head-actions { display:flex; gap:9px; flex-wrap:wrap; }
+    .overview-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+    .metric { background:var(--bg-card); border:1px solid var(--glass-border); border-radius:18px; padding:18px; box-shadow:var(--shadow-card); }
+    .metric-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .metric-icon { width:36px; height:36px; border-radius:11px; display:grid; place-items:center; background:var(--secondary-soft); color:var(--secondary); }
+    .metric small { color:var(--text-muted); font-size:.67rem; font-weight:700; }
+    .metric strong { display:block; font-size:1.45rem; letter-spacing:-.04em; }
+    .metric span { color:var(--text-sec); font-size:.69rem; }
+    .dashboard-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr); gap:18px; align-items:start; }
+    .panel { background:var(--bg-card); border:1px solid var(--glass-border); border-radius:20px; box-shadow:var(--shadow-card); overflow:hidden; }
+    .panel-head { padding:18px 20px; border-bottom:1px solid var(--glass-border); display:flex; align-items:center; justify-content:space-between; gap:15px; }
+    .panel-head h2 { font-size:.95rem; letter-spacing:-.02em; }
+    .panel-head a { color:var(--secondary); text-decoration:none; font-size:.72rem; font-weight:750; }
+    .courses { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:14px; }
+    .course-card { display:grid; grid-template-columns:96px minmax(0,1fr); gap:13px; padding:11px; border:1px solid var(--glass-border); border-radius:15px; text-decoration:none; background:rgba(255,255,255,.02); transition:.2s; min-height:118px; }
+    .course-card:hover { border-color:rgba(11,159,229,.35); transform:translateY(-2px); background:rgba(255,255,255,.035); }
+    .course-thumb { border-radius:12px; overflow:hidden; background:linear-gradient(145deg,#0b4268,#123054); position:relative; min-height:96px; display:grid; place-items:center; }
+    .course-thumb img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+    .course-thumb::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent,rgba(0,0,0,.24)); }
+    .course-thumb i { z-index:2; color:#fff; font-size:1.25rem; }
+    .course-body { min-width:0; align-self:center; }
+    .course-tag { display:block; color:var(--primary); font-size:.58rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; }
+    .course-title { font-size:.8rem; line-height:1.35; margin-bottom:7px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .course-meta { display:flex; gap:10px; color:var(--text-muted); font-size:.6rem; }
+    .course-meta i { color:var(--secondary); }
+    .empty-state { grid-column:1/-1; text-align:center; padding:38px 18px; color:var(--text-sec); }
+    .empty-state i { display:block; font-size:1.7rem; color:var(--secondary); margin-bottom:10px; }
+    .progress-card { padding:20px; }
+    .progress-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .progress-top h3 { font-size:.9rem; }
+    .progress-value { font-size:1.8rem; font-weight:800; letter-spacing:-.05em; color:#fff; }
+    .progress-track { height:8px; border-radius:20px; background:rgba(255,255,255,.07); overflow:hidden; margin:11px 0 8px; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--secondary),var(--primary)); border-radius:20px; }
+    .progress-caption { color:var(--text-muted); font-size:.67rem; }
+    .quick-list { display:grid; gap:8px; padding:14px; }
+    .quick-link { display:flex; align-items:center; gap:11px; padding:12px; border:1px solid var(--glass-border); border-radius:13px; text-decoration:none; background:rgba(255,255,255,.018); }
+    .quick-link:hover { background:rgba(255,255,255,.04); }
+    .quick-icon { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:var(--secondary-soft); color:var(--secondary); }
+    .quick-copy { flex:1; min-width:0; }
+    .quick-copy strong { display:block; font-size:.74rem; }
+    .quick-copy span { color:var(--text-muted); font-size:.62rem; display:block; margin-top:2px; }
+    .quick-link > i { color:var(--text-muted); font-size:.72rem; }
+    .activity { padding:6px 14px 14px; }
+    .activity-row { display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:9px; align-items:center; padding:10px 3px; border-bottom:1px solid rgba(255,255,255,.055); }
+    .activity-row:last-child { border-bottom:0; }
+    .activity-row > i { color:var(--secondary); font-size:.58rem; }
+    .activity-row span { font-size:.7rem; color:var(--text-sec); }
+    .activity-row time { font-size:.58rem; color:var(--text-muted); white-space:nowrap; }
+    @media(max-width:1150px){ .overview-grid{grid-template-columns:repeat(2,1fr)} .dashboard-layout{grid-template-columns:1fr} }
+    @media(max-width:700px){ .dashboard-head{align-items:flex-start;flex-direction:column}.head-actions{width:100%}.head-actions .btn{flex:1}.courses{grid-template-columns:1fr}.overview-grid{grid-template-columns:repeat(2,1fr);gap:9px}.metric{padding:14px}.dashboard-layout{gap:13px} }
+    @media(max-width:420px){ .course-card{grid-template-columns:82px minmax(0,1fr)} .course-thumb{min-height:88px}.metric strong{font-size:1.25rem} }
 </style>
 {% endblock %}
 {% block content %}
 <div class="container">
-    <section class="hero animate-in">
-        <div class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Portal Academico</div>
-        <h1>Ola, {{ current_user.name.split()[0] }}! <span class="text-gradient">Pronto para estudar?</span></h1>
-        <p>Continue sua formacao teologica. Cada aula concluida te aproxima do proximo nivel.</p>
+    <section class="dashboard-head animate-in">
+        <div>
+            <div class="eyebrow">Seu ambiente de aprendizagem</div>
+            <h1>Ola, {{ current_user.name.split()[0] }}.</h1>
+            <p>Acompanhe sua formacao, retome os estudos e veja os conteudos mais recentes publicados pelo instituto.</p>
+        </div>
+        <div class="head-actions">
+            <a href="{{ url_for('lista_aulas') }}" class="btn btn-secondary"><i class="fa-solid fa-book-open"></i> Ver aulas</a>
+            {% if current_user.role in ['admin','professor','docente'] %}
+            <a href="{{ url_for('upload') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova aula</a>
+            {% endif %}
+        </div>
     </section>
-    <div class="stats-row animate-in delay-1">
-        <div class="stat-card"><i class="fa-solid fa-book-open"></i><span class="stat-value">{{ aulas_count }}</span><span class="stat-label">Aulas</span></div>
-        <div class="stat-card"><i class="fa-solid fa-check-circle"></i><span class="stat-value">{{ meu_progresso }}</span><span class="stat-label">Concluidas</span></div>
-        <div class="stat-card"><i class="fa-solid fa-bolt"></i><span class="stat-value">{{ xp }}</span><span class="stat-label">XP Total</span></div>
-    </div>
-    <div class="section-header animate-in delay-2">
-        <h2><i class="fa-solid fa-fire" style="color: var(--primary);"></i> Aulas Recentes</h2>
-        <a href="{{ url_for('lista_aulas') }}">Ver todas <i class="fa-solid fa-arrow-right"></i></a>
-    </div>
-    <div class="aulas-grid animate-in delay-3">
-        {% for aula in aulas %}
-        <a href="{{ url_for('ver_aula', slug=aula.slug) }}" class="aula-card">
-            <div class="aula-thumb">
-                <img src="https://img.youtube.com/vi/{{ aula.url_video }}/mqdefault.jpg" alt="{{ aula.titulo }}">
-                <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            </div>
-            <div class="aula-body">
-                <span class="aula-tag">{{ aula.categoria }}</span>
-                <h3 class="aula-title">{{ aula.titulo }}</h3>
-                <p class="aula-desc">{{ aula.descricao or 'Assista e complete o desafio para ganhar XP.' }}</p>
-                <div class="aula-footer">
-                    <span class="aula-meta"><i class="fa-regular fa-clock"></i> {{ aula.minutos_estimados }} min</span>
-                    <span class="aula-xp"><i class="fa-solid fa-bolt"></i> +{{ aula.xp_recompensa }} XP</span>
-                </div>
-            </div>
-        </a>
+
+    <section class="overview-grid animate-in delay-1">
+        <article class="metric"><div class="metric-top"><div class="metric-icon"><i class="fa-solid fa-book-open"></i></div><small>Biblioteca</small></div><strong>{{ aulas_count }}</strong><span>aulas publicadas</span></article>
+        <article class="metric"><div class="metric-top"><div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div><small>Conclusao</small></div><strong>{{ meu_progresso }}</strong><span>aulas concluidas</span></article>
+        <article class="metric"><div class="metric-top"><div class="metric-icon"><i class="fa-solid fa-chart-simple"></i></div><small>Nivel</small></div><strong>{{ nivel }}</strong><span>{{ xp }} XP acumulados</span></article>
+        {% if alunos_count is not none %}
+        <article class="metric"><div class="metric-top"><div class="metric-icon"><i class="fa-solid fa-users"></i></div><small>Alunos</small></div><strong>{{ alunos_count }}</strong><span>matriculas ativas</span></article>
         {% else %}
-        <div class="empty-state">
-            <i class="fa-solid fa-book-open-reader"></i>
-            <h3>Nenhuma aula disponivel</h3>
-            <p>Aguarde o administrador publicar novos conteudos.</p>
-        </div>
-        {% endfor %}
+        <article class="metric"><div class="metric-top"><div class="metric-icon"><i class="fa-solid fa-graduation-cap"></i></div><small>Progresso</small></div><strong>{{ progresso_pct }}%</strong><span>da biblioteca concluida</span></article>
+        {% endif %}
+    </section>
+
+    <div class="dashboard-layout animate-in delay-2">
+        <section class="panel">
+            <div class="panel-head"><h2>Conteudos recentes</h2><a href="{{ url_for('lista_aulas') }}">Abrir biblioteca <i class="fa-solid fa-arrow-right"></i></a></div>
+            <div class="courses">
+                {% for aula in aulas %}
+                <a href="{{ url_for('ver_aula', slug=aula.slug) }}" class="course-card">
+                    <div class="course-thumb">
+                        {% if aula.url_video %}<img src="https://img.youtube.com/vi/{{ aula.url_video }}/mqdefault.jpg" alt="" loading="lazy">{% endif %}
+                        <i class="fa-solid {{ 'fa-play' if aula.url_video else 'fa-book-open' }}"></i>
+                    </div>
+                    <div class="course-body">
+                        <span class="course-tag">{{ aula.categoria or 'Geral' }}</span>
+                        <h3 class="course-title">{{ aula.titulo }}</h3>
+                        <div class="course-meta"><span><i class="fa-regular fa-clock"></i> {{ aula.minutos_estimados or 0 }} min</span><span><i class="fa-solid fa-bolt"></i> {{ aula.xp_recompensa }} XP</span></div>
+                    </div>
+                </a>
+                {% else %}
+                <div class="empty-state"><i class="fa-solid fa-book"></i><strong>Nenhum conteudo publicado</strong><p>As novas aulas aparecerao aqui.</p></div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <aside style="display:grid;gap:18px">
+            <section class="panel progress-card">
+                <div class="progress-top"><h3>Seu progresso geral</h3><span class="progress-value">{{ progresso_pct }}%</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width:{{ progresso_pct }}%"></div></div>
+                <div class="progress-caption">{{ meu_progresso }} de {{ aulas_count }} aulas concluidas</div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head"><h2>Acesso rapido</h2></div>
+                <div class="quick-list">
+                    <a class="quick-link" href="{{ url_for('lista_aulas') }}"><div class="quick-icon"><i class="fa-solid fa-book-open"></i></div><div class="quick-copy"><strong>Biblioteca</strong><span>Continue de onde parou</span></div><i class="fa-solid fa-chevron-right"></i></a>
+                    <a class="quick-link" href="{{ url_for('perfil') }}"><div class="quick-icon"><i class="fa-solid fa-chart-line"></i></div><div class="quick-copy"><strong>Meu desempenho</strong><span>Nivel, XP e dados da conta</span></div><i class="fa-solid fa-chevron-right"></i></a>
+                    {% if current_user.role == 'admin' %}
+                    <a class="quick-link" href="{{ url_for('lista_aprovacoes') }}"><div class="quick-icon"><i class="fa-solid fa-users-gear"></i></div><div class="quick-copy"><strong>Gestao de usuarios</strong><span>{{ pendentes_count or 0 }} aprovacao(oes) pendente(s)</span></div><i class="fa-solid fa-chevron-right"></i></a>
+                    {% elif current_user.role in ['professor','docente'] %}
+                    <a class="quick-link" href="{{ url_for('upload') }}"><div class="quick-icon"><i class="fa-solid fa-file-circle-plus"></i></div><div class="quick-copy"><strong>Publicar conteudo</strong><span>Cadastre uma nova aula</span></div><i class="fa-solid fa-chevron-right"></i></a>
+                    {% endif %}
+                </div>
+            </section>
+
+            {% if atividades %}
+            <section class="panel">
+                <div class="panel-head"><h2>Atividade recente</h2></div>
+                <div class="activity">
+                    {% for log in atividades %}
+                    <div class="activity-row"><i class="fa-solid fa-circle"></i><span>{{ log.acao }}</span><time>{{ log.timestamp.strftime('%d/%m %H:%M') }}</time></div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </aside>
     </div>
-    {% if atividades %}
-    <div class="atividades-list animate-in">
-        <div class="section-header">
-            <h2><i class="fa-solid fa-clock-rotate-left" style="color: var(--secondary);"></i> Atividades Recentes</h2>
-        </div>
-        <div class="card">
-            {% for log in atividades %}
-            <div class="atividade-item"><i class="fa-solid fa-circle"></i><span>{{ log.acao }}</span><small>{{ log.timestamp.strftime('%d/%m %H:%M') }}</small></div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
