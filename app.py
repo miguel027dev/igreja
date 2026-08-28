@@ -24,7 +24,7 @@ def normalize_database_url(url):
     if not url:
         raise RuntimeError(
             "DATABASE_URL nao configurada. Defina uma URL PostgreSQL, por exemplo: "
-            "postgresql://usuario:senha@host:5432/banco"
+            "postgresql://igreja_tj5z_user:5tK1RON5Q5S4o60bRF9TjAINBtd0VoQT@dpg-da8rhe67bikc73d3rs10-a/igreja_tj5z"
         )
     if url.startswith("postgres://"):
         return "postgresql+psycopg://" + url[len("postgres://"):]
